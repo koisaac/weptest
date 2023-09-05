@@ -7,7 +7,8 @@ const session = require("express-session");
 const MySQLStore = require("express-mysql-session")(session);
 
 const app = express();
-
+app.use(express.json({ strict: false }));
+app.use(express.urlencoded());
 const db_info = {
     host: "localhost",
     port: "3306",
@@ -38,22 +39,24 @@ app.get("/", (req, res) => {
         });
     }
 });
-app.get("/login", (req, res) => {
+app.post("/login", (req, res) => {
     if (!req.session.Id) {
         passward = crypto
             .createHash("sha512")
-            .update(req.query.passward)
+            .update(req.body.passward)
             .digest("base64");
+
         conn.query(
             "select * from test where user_name ='" +
-                req.query.name +
+                req.body.name +
                 "' and passward = '" +
                 passward +
                 "'",
             (err, row) => {
                 if (err) throw err;
+
                 if (row[0]) {
-                    req.session.userId = req.query.name;
+                    req.session.userId = req.body.name;
                     req.session.passward = passward;
                     req.session.info = row[0].info;
                     req.session.save(() => {
@@ -64,26 +67,24 @@ app.get("/login", (req, res) => {
                 }
             }
         );
-        console.log(req.session);
     }
 });
 
-app.get("/a", (req, res) => {
+app.post("/a", (req, res) => {
     conn.query(
-        "select * from test where user_name = '" + req.query.id + "'",
+        "select * from test where user_name = '" + req.body.id + "'",
         (err, row) => {
             if (err) throw err;
             if (row[0]) {
                 res.redirect("/move_test?masege=이미 있는 id입니다.");
             } else {
-                console.log(req.query);
                 passward = crypto
                     .createHash("sha512")
-                    .update(req.query.password)
+                    .update(req.body.password)
                     .digest("base64");
                 conn.query(
                     "insert into test values('" +
-                        req.query.id +
+                        req.body.id +
                         "','" +
                         passward +
                         "','')",

@@ -14,7 +14,7 @@
             alert("id 또는 비밀번호가 틀렸습니다.");
         </script>
         <%}%>
-        <form action="login" method="get">
+        <form action="login" method="post">
             username:<input type="text" name="name" /> passward:<input
                 type="password"
                 name="passward"
@@ -26,8 +26,9 @@
         </form>
         <%} else{%>
         <div><%=nsername%></div>
+
         <form action="logout" method="get">
-            <input type="submit" />
+            <input type="submit" value="로그아웃" />
         </form>
         <%}%>
     </body>
